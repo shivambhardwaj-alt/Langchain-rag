@@ -28,6 +28,9 @@ from prompts.roadmap_prompt import roadmap_prompt, roadmap_parser
 from prompts.chat_prompt import contextualize_prompt, chat_prompt
 from prompts.fallback_prompt import UNIVERSAL_FALLBACK_PROMPT, universal_fallback_parser
 from langchain_core.messages import BaseMessage
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
