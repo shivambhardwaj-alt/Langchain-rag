@@ -1,4 +1,10 @@
 from fastapi import FastAPI
+import os
+from dotenv import load_dotenv
+
+loaded = load_dotenv()
+
+
 
 
 from api.auth_routes import router as auth_router 

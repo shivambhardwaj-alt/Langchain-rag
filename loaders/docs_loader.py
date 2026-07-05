@@ -26,7 +26,7 @@ def load_docx(file_path: str, doc_id: str) -> list[Document]:
     sections: list[dict] = []
     current_section = {"heading": "Document Start", "level": 0, "content": []}
 
-    # Iterate body elements in document order, handling both paragraphs and tables
+   
     for element in _iter_block_items(docx_file):
         if isinstance(element, Paragraph):
             style_name = (element.style.name or "").lower()
