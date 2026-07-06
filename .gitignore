@@ -56,7 +56,7 @@ chroma_db/
 *.faiss
 *.pkl
 
-
+codeforces_dp_master_list.pdf
 data/uploads/
 data/raw/
 data/processed/

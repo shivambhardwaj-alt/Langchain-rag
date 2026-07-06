@@ -20,6 +20,7 @@ app.include_router(chat_router)
 origins = [
     "http://localhost:3000",
     "http://localhost:5173",
+    "https://your-service-name.up.railway.app/",
 ]
 
 
