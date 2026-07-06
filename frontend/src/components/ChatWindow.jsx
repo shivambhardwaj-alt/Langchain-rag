@@ -1,6 +1,10 @@
 import React, { useRef, useEffect, useReducer } from "react";
 import { Send, Bot, User, ArrowRight } from "lucide-react";
 import UploadPanel from "./UploadPanel.jsx";
+import axios from "axios";
+
+
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const initialState = {
   mode: "chat",
@@ -46,7 +50,7 @@ function reducer(state, action) {
   }
 }
 
-const ChatWindow = ({mode}) => {
+const ChatWindow = ({ mode }) => {
   const [messages, setMessages] = React.useState([]);
   const [showUpload, setShowUpload] = React.useState(false);
 
@@ -73,7 +77,7 @@ const ChatWindow = ({mode}) => {
     dispatch({ type: "SET_LOADING", payload: true });
     dispatch({ type: "SET_ERROR", payload: null });
 
-    
+
     const payload = {
       messages: updatedMessages,
       query: text,
@@ -81,21 +85,15 @@ const ChatWindow = ({mode}) => {
       documentId: state.documentId,
       mode: mode,
     };
-
-
-
-    console.log(payload);
-
     try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
+      const tempData = {
+        "chain_type": "flashcards",
+        "session_id": "test-session-001",
+        "query": "What are the benefits of programming and how to practice it effectively?",
+        "doc_id": null
+      };
+      const { data } = await axios.post(`${backendUrl}/chat/model` , tempData);
+      console.log(data);
 
       dispatch({ type: "SET_RESPONSE", payload: data });
 

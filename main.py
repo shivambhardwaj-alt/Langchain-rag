@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 import os
 from dotenv import load_dotenv
-
+from fastapi.middleware.cors import CORSMiddleware
 loaded = load_dotenv()
 
 
@@ -15,6 +15,20 @@ app.include_router(auth_router)
 app.include_router(chat_router)
 
 
+
+origins = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+]
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins  = origins, 
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 @app.get("/health")
 def health_check():
     return {"message" : "health is ok "}
