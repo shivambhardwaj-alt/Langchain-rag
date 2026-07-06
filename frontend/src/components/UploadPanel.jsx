@@ -62,7 +62,7 @@ const UploadPanel = ({ onUploaded }) => {
         <p className="text-sm font-medium text-ink">
           Drop a document here, or click to browse
         </p>
-        <p className="text-xs text-muted mt-1">PDF, DOCX, or TXT</p>
+        <p className="text-xs text-muted mt-1">PDF, DOCX,TXT ,PPT OR URL</p>
       </div>
 
       {fileName && (

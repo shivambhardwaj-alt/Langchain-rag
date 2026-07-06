@@ -6,9 +6,10 @@ import ChatWindow from './components/ChatWindow.jsx'
 
 const App = () => {
   return (
-    <div  className='flex flex-row items-start justify-start gap-3'>
+    <div  className='relative flex flex-row items-start justify-start gap-3'>
+      
+     
       <Sidebar />
-      {/* <UploadPanel /> */}
       <ChatWindow />
 
 

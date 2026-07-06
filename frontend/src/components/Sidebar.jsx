@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
   MessageSquare,
@@ -77,6 +77,10 @@ export const NAV_ITEMS = [
     icon: Route,
   },
 ];
+
+
+
+const [mode , setMode] = useState("chat");
 
 const Sidebar = ({ activeView, onChangeView, docId }) => {
   return (

@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Send, Bot, User } from "lucide-react";
+import { Send, Bot, User, ArrowRight, Upload } from "lucide-react";
+import UploadPanel from "./UploadPanel.jsx";
 
 const ChatWindow = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [showUpload, setShowUpload] = useState(false);
 
   const bottomRef = useRef(null);
 
@@ -21,7 +24,7 @@ const ChatWindow = () => {
     setInput("");
     setLoading(true);
 
-    
+
     setTimeout(() => {
       setMessages((prev) => [
         ...prev,
@@ -41,11 +44,38 @@ const ChatWindow = () => {
     }
   };
 
-  return (
-    <div className="flex flex-col h-screen bg-white  w-full p-3">
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
+
+
+  return (
+    <div className=" relative flex flex-col h-screen bg-white  w-full p-3">
+      <div>
+
+        <div className="relative z-50">
+          {!showUpload && (
+            <div className="flex flex-row items-center justify-end mr-16">
+            <button
+              onClick={() => setShowUpload(true)} 
+              className="bg-black text-white px-4 py-2 "
+            >
+              UploadDocument
+            </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {
+        showUpload && <div className="absolute inset-0  bg-white z-50 h-screen px-10 py-6">
+          <div className="flex flex-row items-center justify-end">
+            <button onClick={() => setShowUpload(!showUpload)} className="cursor-pointer"><ArrowRight /></button>
+            </div>
+            <div>
+              <UploadPanel />
+              </div>
+        </div>
+      }
+      <div className="  relative flex-1 overflow-y-auto px-4 py-6">
         <div className="max-w-2xl mx-auto space-y-6">
 
           {messages.map((msg, i) => (
@@ -73,8 +103,8 @@ const ChatWindow = () => {
         </div>
       </div>
 
-  
-          <hr />
+
+      <hr />
       <div className=" p-4 bg-white w-full">
         <div className="max-w-2xl mx-auto flex gap-2 items-end">
 
