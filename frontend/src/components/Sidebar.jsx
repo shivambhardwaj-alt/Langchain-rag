@@ -1,15 +1,86 @@
-import React from 'react'
-import { MessageSquare, BarChart3, HelpCircle, FileText } from 'lucide-react'
+import React from 'react';
 
-const NAV_ITEMS = [
-  { key: 'chat', label: 'Chat', icon: MessageSquare },
-  { key: 'analysis', label: 'Analysis', icon: BarChart3 },
-  { key: 'quiz', label: 'Quiz', icon: HelpCircle },
-]
+import {
+  MessageSquare,
+  FileText,
+  Lightbulb,
+  HelpCircle,
+  GitBranch,
+  Brain,
+  Layers,
+  Scale,
+  BookOpen,
+  Code2,
+  AlertTriangle,
+  Route,
+} from "lucide-react";
+
+export const NAV_ITEMS = [
+  {
+    key: "chat",
+    label: "Chat",
+    icon: MessageSquare,
+  },
+  {
+    key: "summary",
+    label: "Summary",
+    icon: FileText,
+  },
+  {
+    key: "concepts",
+    label: "Concepts",
+    icon: Lightbulb,
+  },
+  {
+    key: "questions",
+    label: "Questions",
+    icon: HelpCircle,
+  },
+  {
+    key: "mindmap",
+    label: "Mind Map",
+    icon: GitBranch,
+  },
+  {
+    key: "quiz",
+    label: "Quiz",
+    icon: Brain,
+  },
+  {
+    key: "flashcards",
+    label: "Flashcards",
+    icon: Layers,
+  },
+  {
+    key: "counterargs",
+    label: "Counter Arguments",
+    icon: Scale,
+  },
+  {
+    key: "explain_simple",
+    label: "Explain Simply",
+    icon: BookOpen,
+  },
+  {
+    key: "explain_technical",
+    label: "Technical Explanation",
+    icon: Code2,
+  },
+  {
+    key: "missing_knowledge",
+    label: "Knowledge Gaps",
+    icon: AlertTriangle,
+  },
+  {
+    key: "roadmap",
+    label: "Roadmap",
+    icon: Route,
+  },
+];
 
 const Sidebar = ({ activeView, onChangeView, docId }) => {
   return (
-    <aside className="w-64 h-screen border-r border-line bg-white flex flex-col">
+    <aside className="w-64 h-screen border-r border-line bg-white flex flex-col overflow-y-auto">
       <div className="px-6 py-6 border-b border-line">
         <h1 className="text-lg font-semibold text-ink tracking-tight">
           AI Knowledge Studio
@@ -39,7 +110,7 @@ const Sidebar = ({ activeView, onChangeView, docId }) => {
                 strokeWidth={2}
                 className={isActive ? 'text-accent' : 'text-muted group-hover:text-ink'}
               />
-              <span>{item.label}</span>
+              <span className='text-xs'>{item.label}</span>
             </button>
           )
         })}
