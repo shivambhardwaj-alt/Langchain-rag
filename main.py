@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 import os
+from chains.feautres_chain import run_chain
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 loaded = load_dotenv()
@@ -32,3 +33,14 @@ app.add_middleware(
 @app.get("/health")
 def health_check():
     return {"message" : "health is ok "}
+
+
+@app.get("/test")
+def test():
+
+    return run_chain(
+        chain_type="chat",
+        query="Can you  give me a list?",
+        doc_id=None,
+        sessionId=None,
+    )

@@ -14,25 +14,18 @@ _session_last_active: dict[str, datetime] = {}
 SESSION_TTL_MINUTES = 60
 MAX_MESSAGES = 20
 
-
 def _is_expired(session_id: str) -> bool:
     if session_id not in _session_last_active:
         return True
-
     last_active = _session_last_active[session_id]
     return datetime.utcnow() - last_active > timedelta(minutes=SESSION_TTL_MINUTES)
-
 
 def get_session_history(session_id: str) -> BaseChatMessageHistory:
     if session_id not in _session_store or _is_expired(session_id):
         _session_store[session_id] = ChatMessageHistory()
         logger.info(f"Created new session: {session_id}")
-    
-
     _session_last_active[session_id] = datetime.utcnow()
-
     return _session_store[session_id]
-
 
 def clear_session(session_id: str) -> None:
     _session_store.pop(session_id, None)
