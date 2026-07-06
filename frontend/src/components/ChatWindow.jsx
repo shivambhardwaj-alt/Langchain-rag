@@ -79,20 +79,14 @@ const ChatWindow = ({ mode }) => {
 
 
     const payload = {
-      messages: updatedMessages,
       query: text,
-      sessionId: state.sessionId,
-      documentId: state.documentId,
-      mode: mode,
+      session_id: state.sessionId,
+      document_id: state.documentId,
+      chain_type: mode,
     };
     try {
-      const tempData = {
-        "chain_type": "flashcards",
-        "session_id": "test-session-001",
-        "query": "What are the benefits of programming and how to practice it effectively?",
-        "doc_id": null
-      };
-      const { data } = await axios.post(`${backendUrl}/chat/model` , tempData);
+     
+      const { data } = await axios.post(`${backendUrl}/chat/model` , payload);
       console.log(data);
 
       dispatch({ type: "SET_RESPONSE", payload: data });

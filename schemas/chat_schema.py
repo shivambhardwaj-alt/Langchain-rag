@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
 
-
 class ChatRequest(BaseModel):
     chain_type: str
     session_id: str
