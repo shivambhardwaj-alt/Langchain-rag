@@ -35,12 +35,3 @@ def health_check():
     return {"message" : "health is ok "}
 
 
-@app.get("/test")
-def test():
-
-    return run_chain(
-        chain_type="chat",
-        query="Can you  give me a list?",
-        doc_id=None,
-        sessionId=None,
-    )

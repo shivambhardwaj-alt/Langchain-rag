@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Any   
 
 class ChatRequest(BaseModel):
     chain_type: str
@@ -9,5 +9,5 @@ class ChatRequest(BaseModel):
 
 
 class ChatResponse(BaseModel):
-    response: str
+    response: Any
     session_id: str
