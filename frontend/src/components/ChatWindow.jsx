@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useReducer } from "react";
 import { Send, Bot, User, ArrowRight } from "lucide-react";
 import UploadPanel from "./UploadPanel.jsx";
+import ResponseRenderer from "./ResponseRenderer.jsx";
 import axios from "axios";
 
 
@@ -85,15 +86,20 @@ const ChatWindow = ({ mode }) => {
       chain_type: mode,
     };
     try {
-     
-      const { data } = await axios.post(`${backendUrl}/chat/model` , payload);
+
+      const { data } = await axios.post(`${backendUrl}/chat/model`, payload);
       console.log(data);
 
       dispatch({ type: "SET_RESPONSE", payload: data });
 
+     
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", text: data?.response || "No response received." },
+        {
+          role: "assistant",
+          mode,
+          data: data?.response ?? data,
+        },
       ]);
     } catch (err) {
       dispatch({
@@ -146,27 +152,40 @@ const ChatWindow = ({ mode }) => {
         <div className="max-w-2xl mx-auto space-y-6">
           {messages.map((msg, i) => (
             <div key={i} className="flex gap-3">
-              <div className="h-8 w-8 rounded-full flex items-center justify-center bg-gray-200">
+              <div className="h-8 w-8 rounded-full flex items-center justify-center bg-gray-200 shrink-0">
                 {msg.role === "user" ? <User size={16} /> : <Bot size={16} />}
               </div>
-              <div className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
-                {msg.text}
-              </div>
+
+              {msg.role === "user" ? (
+                <div className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
+                  {msg.text}
+                </div>
+              ) : msg.mode === "chat" ? (
+                <div className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
+                  {typeof msg.data === "string"
+                    ? msg.data
+                    : msg.data?.response || msg.data?.answer || "No response received."}
+                </div>
+              ) : (
+                <div className="flex-1">
+                  <ResponseRenderer mode={msg.mode} data={msg.data} />
+                </div>
+              )}
             </div>
           ))}
 
           {state.loading && (
             <div className="flex gap-3">
-              <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+              <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
                 <Bot size={16} />
               </div>
-              <div className="text-gray-500 text-sm">Thinking...</div>
+              <div className="flex-1">
+                <ResponseRenderer mode={mode} loading />
+              </div>
             </div>
           )}
 
-          {state.error && (
-            <div className="text-sm text-red-600">{state.error}</div>
-          )}
+          {state.error && <ResponseRenderer error={state.error} />}
 
           <div ref={bottomRef} />
         </div>
