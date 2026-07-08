@@ -4,7 +4,6 @@ import UploadPanel from "./UploadPanel.jsx";
 import ResponseRenderer from "./ResponseRenderer.jsx";
 import axios from "axios";
 
-
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const initialState = {
@@ -21,35 +20,36 @@ function reducer(state, action) {
   switch (action.type) {
     case "SET_MODE":
       return { ...state, mode: action.payload };
-
     case "SET_QUERY":
       return { ...state, query: action.payload };
-
     case "SET_DOCUMENT_ID":
       return { ...state, documentId: action.payload };
-
     case "SET_SESSION_ID":
       return { ...state, sessionId: action.payload };
-
     case "SET_RESPONSE":
       return { ...state, response: action.payload };
-
     case "SET_LOADING":
       return { ...state, loading: action.payload };
-
     case "SET_ERROR":
       return { ...state, error: action.payload };
-
     case "RESET":
       return {
         ...initialState,
         sessionId: crypto.randomUUID(),
       };
-
     default:
       return state;
   }
 }
+
+const formatChatText = (text) => {
+  if (!text) return "";
+  return String(text)
+    .replace(/\r\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .replace(/\t/g, "  ")
+    .trim();
+};
 
 const ChatWindow = ({ mode }) => {
   const [messages, setMessages] = React.useState([]);
@@ -71,13 +71,11 @@ const ChatWindow = ({ mode }) => {
     if (!text || state.loading) return;
 
     const userMessage = { role: "user", text };
-    const updatedMessages = [...messages, userMessage];
+    setMessages((prev) => [...prev, userMessage]);
 
-    setMessages(updatedMessages);
     dispatch({ type: "SET_QUERY", payload: "" });
     dispatch({ type: "SET_LOADING", payload: true });
     dispatch({ type: "SET_ERROR", payload: null });
-
 
     const payload = {
       query: text,
@@ -85,14 +83,11 @@ const ChatWindow = ({ mode }) => {
       document_id: state.documentId,
       chain_type: mode,
     };
+
     try {
-
       const { data } = await axios.post(`${backendUrl}/chat/model`, payload);
-      console.log(data);
-
       dispatch({ type: "SET_RESPONSE", payload: data });
 
-     
       setMessages((prev) => [
         ...prev,
         {
@@ -104,7 +99,7 @@ const ChatWindow = ({ mode }) => {
     } catch (err) {
       dispatch({
         type: "SET_ERROR",
-        payload: err?.message || "Something went wrong",
+        payload: err?.response?.data?.detail || err?.message || "Something went wrong",
       });
     } finally {
       dispatch({ type: "SET_LOADING", payload: false });
@@ -149,38 +144,118 @@ const ChatWindow = ({ mode }) => {
       )}
 
       <div className="relative flex-1 overflow-y-auto px-4 py-6">
-        <div className="max-w-2xl mx-auto space-y-6">
-          {messages.map((msg, i) => (
-            <div key={i} className="flex gap-3">
-              <div className="h-8 w-8 rounded-full flex items-center justify-center bg-gray-200 shrink-0">
-                {msg.role === "user" ? <User size={16} /> : <Bot size={16} />}
-              </div>
+        <div className="max-w-3xl mx-auto space-y-5">
+          {messages.map((msg, i) => {
+            const isUser = msg.role === "user";
+            const isChatAssistant = msg.role === "assistant" && msg.mode === "chat";
 
-              {msg.role === "user" ? (
-                <div className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
-                  {msg.text}
-                </div>
-              ) : msg.mode === "chat" ? (
-                <div className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
-                  {typeof msg.data === "string"
-                    ? msg.data
-                    : msg.data?.response || msg.data?.answer || "No response received."}
-                </div>
-              ) : (
-                <div className="flex-1">
-                  <ResponseRenderer mode={msg.mode} data={msg.data} />
-                </div>
-              )}
-            </div>
-          ))}
+            const content =
+              typeof msg.data === "string"
+                ? formatChatText(msg.data)
+                : formatChatText(msg.data?.response || msg.data?.answer || "No response received.");
+
+            return (
+              <div
+                key={i}
+                className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"}`}
+              >
+                {!isUser && (
+                  <div className="h-8 w-8 rounded-full flex items-center justify-center bg-gray-200 shrink-0 mt-1">
+                    <Bot size={16} />
+                  </div>
+                )}
+
+                {isUser ? (
+                  <div className="max-w-[80%] rounded-2xl bg-black text-white px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap shadow-sm">
+                    {msg.text}
+                  </div>
+                ) : isChatAssistant ? (
+                  <div className="max-w-[85%] rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm leading-7 text-slate-800 shadow-sm whitespace-pre-wrap">
+                    {content.split("\n").map((line, idx) => {
+                      const trimmed = line.trim();
+
+                      if (!trimmed) {
+                        return <div key={idx} className="h-2" />;
+                      }
+
+                      if (/^#{1,3}\s/.test(trimmed)) {
+                        const level = trimmed.match(/^#{1,3}/)[0].length;
+                        const text = trimmed.replace(/^#{1,3}\s/, "");
+                        const Tag = level === 1 ? "h1" : level === 2 ? "h2" : "h3";
+
+                        return (
+                          <Tag
+                            key={idx}
+                            className={`font-semibold text-slate-900 ${
+                              level === 1
+                                ? "text-lg"
+                                : level === 2
+                                ? "text-base"
+                                : "text-sm"
+                            }`}
+                          >
+                            {text}
+                          </Tag>
+                        );
+                      }
+
+                      if (/^[-*]\s/.test(trimmed)) {
+                        return (
+                          <div key={idx} className="flex gap-2">
+                            <span className="mt-2 h-1.5 w-1.5 rounded-full bg-slate-500 shrink-0" />
+                            <span>{trimmed.replace(/^[-*]\s/, "")}</span>
+                          </div>
+                        );
+                      }
+
+                      if (/^\d+\.\s/.test(trimmed)) {
+                        return (
+                          <div key={idx} className="flex gap-2">
+                            <span className="font-medium text-slate-600 shrink-0">
+                              {trimmed.match(/^\d+\./)[0]}
+                            </span>
+                            <span>{trimmed.replace(/^\d+\.\s/, "")}</span>
+                          </div>
+                        );
+                      }
+
+                      if (/^```/.test(trimmed)) {
+                        return (
+                          <div
+                            key={idx}
+                            className="rounded-xl bg-zinc-900 text-white px-3 py-2 font-mono text-xs overflow-x-auto"
+                          >
+                            {trimmed.replace(/^```/, "")}
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <p key={idx} className="whitespace-pre-wrap">
+                          {line}
+                        </p>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="flex-1">
+                    <ResponseRenderer mode={msg.mode} data={msg.data} />
+                  </div>
+                )}
+              </div>
+            );
+          })}
 
           {state.loading && (
-            <div className="flex gap-3">
-              <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
+            <div className="flex gap-3 justify-start">
+              <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center shrink-0 mt-1">
                 <Bot size={16} />
               </div>
-              <div className="flex-1">
-                <ResponseRenderer mode={mode} loading />
+              <div className="max-w-[85%] rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3 shadow-sm">
+                <div className="flex items-center gap-2 text-sm text-slate-500">
+                  <span className="h-2 w-2 rounded-full bg-slate-400 animate-pulse" />
+                  Thinking...
+                </div>
               </div>
             </div>
           )}
@@ -194,7 +269,7 @@ const ChatWindow = ({ mode }) => {
       <hr />
 
       <div className="p-4 bg-white w-full">
-        <div className="max-w-2xl mx-auto flex gap-2 items-end">
+        <div className="max-w-3xl mx-auto flex gap-2 items-end">
           <textarea
             value={state.query}
             onChange={(e) =>
@@ -208,7 +283,8 @@ const ChatWindow = ({ mode }) => {
 
           <button
             onClick={sendMessage}
-            className="h-10 w-10 flex items-center justify-center rounded-xl bg-black text-white hover:bg-gray-800"
+            disabled={state.loading}
+            className="h-10 w-10 flex items-center justify-center rounded-xl bg-black text-white hover:bg-gray-800 disabled:opacity-50"
           >
             <Send size={16} />
           </button>
